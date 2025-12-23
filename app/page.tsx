@@ -398,10 +398,10 @@ export default function HomePage() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              "/assets/winter/winter-1.png",
-              "/assets/winter/winter-2.png",
-              "/assets/winter/winter-3.png",
-              "/assets/winter/winter-4.jpg",
+              "/assets/winter/winter-1.jpg",
+              "/assets/winter/winter-2.jpg",
+              "/assets/winter/winter-3.jpg",
+              "/assets/winter/winter-4.jpeg",
             ].map((src, i) => (
               <div
                 key={src}
