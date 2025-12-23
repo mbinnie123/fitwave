@@ -138,9 +138,19 @@ export default function HomePage() {
               <div className="inline-flex items-center rounded-full border px-3 py-1 text-xs text-gray-700">
                 New Drop • Seamless Collection
               </div>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
-                Ride the Wave, Become the Storm. 🌊⚡
+              <h1
+                className="mt-8 tracking-wide text-5xl md:text-6xl"
+                style={{
+                  fontFamily: '"lindsey-signature", sans-serif',
+                  fontWeight: 900,
+                  fontStyle: "normal",
+                }}
+              >
+                FitWave
               </h1>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-black/90 md:text-4xl">
+                Ride the Wave, Become the Storm. 🌊⚡
+              </h2>
               <p className="mt-4 text-lg text-gray-600">
                 Premium fitness clothing designed for performance, comfort, and clean style.
               </p>
