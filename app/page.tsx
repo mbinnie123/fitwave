@@ -1,5 +1,119 @@
+"use client";
+
 import Link from "next/link";
-import Container from "@/components/Container";
+import Container from "../components/Container";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+
+function HeroCarousel() {
+  const slides = useMemo(
+    () => [
+      {
+        src: "/assets/fitwave-alternative-logo-website-hero-image.png",
+        alt: "FitWave alternative hero",
+      },
+      {
+        src: "/assets/fitwave-become-the-storm-hoodie.jpeg",
+        alt: "FitWave Become the Storm Hoodie",
+        fit: "contain",
+      },
+      {
+        src: "/assets/fitwave-apex-seam-tee-model-man.png",
+        alt: "FitWave Apex Seam Tee - model (man)",
+      },
+      {
+        src: "/assets/fitwave-apex-seam-tee-model-woman.png",
+        alt: "FitWave Apex Seam Tee - model (woman)",
+      },
+      {
+        src: "/assets/fitwave-pulse-air-model.png",
+        alt: "FitWave Pulse Air - model",
+      },
+      {
+        src: "/assets/fitwave-assents-hero-image.jpeg",
+        alt: "FitWave hero campaign image",
+        fit: "contain",
+      },
+    ],
+    []
+  );
+
+  const [active, setActive] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const id = window.setInterval(() => {
+      setActive((prev) => (prev + 1) % slides.length);
+    }, 4500);
+    return () => window.clearInterval(id);
+  }, [isPaused, slides.length]);
+
+  const goPrev = () => setActive((prev) => (prev - 1 + slides.length) % slides.length);
+  const goNext = () => setActive((prev) => (prev + 1) % slides.length);
+
+  return (
+    <div
+      className="relative h-[360px] overflow-hidden rounded-xl border bg-black md:h-[440px]"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <Image
+        src={slides[active].src}
+        alt={slides[active].alt}
+        fill
+        priority
+        className={slides[active].fit === "contain" ? "object-contain p-2" : "object-cover"}
+        sizes="(min-width: 768px) 50vw, 100vw"
+      />
+
+      {/* Overlay gradient for readability */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />
+
+      {/* Prev/Next */}
+      <button
+        type="button"
+        aria-label="Previous slide"
+        onClick={goPrev}
+        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-black shadow hover:bg-white"
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        aria-label="Next slide"
+        onClick={goNext}
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-black shadow hover:bg-white"
+      >
+        ›
+      </button>
+
+      {/* Thumbnails */}
+      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2 rounded-full bg-black/40 p-2 backdrop-blur">
+        {slides.map((s, i) => (
+          <button
+            key={s.src}
+            type="button"
+            aria-label={`Go to slide ${i + 1}`}
+            onClick={() => setActive(i)}
+            className={`relative h-10 w-10 overflow-hidden rounded-full border transition ${i === active
+              ? "border-white ring-2 ring-white/60"
+              : "border-white/30 opacity-80 hover:opacity-100"
+              }`}
+          >
+            <Image
+              src={s.src}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="40px"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const features = [
   { title: "Sweat-wicking", desc: "Stay dry through every session." },
@@ -25,7 +139,7 @@ export default function HomePage() {
                 New Drop • Seamless Collection
               </div>
               <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
-                Move like a wave. Train like you mean it.
+                Ride the Wave, Become the Storm. 🌊⚡
               </h1>
               <p className="mt-4 text-lg text-gray-600">
                 Premium fitness clothing designed for performance, comfort, and clean style.
@@ -56,12 +170,187 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Hero image placeholder */}
-            <div className="rounded-xl border bg-gradient-to-b from-gray-50 to-white">
-              <div className="flex h-[360px] items-center justify-center text-sm text-gray-500 md:h-[440px]">
-                Hero image / lifestyle shot
+            {/* Hero carousel */}
+            <HeroCarousel />
+          </div>
+        </Container>
+      </section>
+
+      {/* Our Popular Seller */}
+      <section className="py-16">
+        <Container>
+          <div className="relative overflow-hidden rounded-2xl border bg-black text-white">
+            {/* ambient glow */}
+            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+
+            <div className="grid gap-10 p-8 md:grid-cols-2 md:items-center md:p-12">
+              {/* Copy */}
+              <div>
+                <div className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs tracking-wide text-white/80">
+                  Our Popular Seller
+                </div>
+
+                <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
+                  The FitWave StormCore Tee⚡
+                </h2>
+
+                <p className="mt-4 max-w-md text-white/80">
+                  Built for intensity. Styled for anywhere. Lightweight comfort with a clean silhouette
+                  that holds its shape session after session.
+                </p>
+
+                <ul className="mt-6 space-y-3 text-sm text-white/80">
+                  <li className="flex gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-white/70" />
+                    Breathable, sweat-wicking fabric
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-white/70" />
+                    Athletic fit with stretch for movement
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-white/70" />
+                    Minimal branding — premium look
+                  </li>
+                </ul>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    href="/shop"
+                    className="rounded-md bg-white px-5 py-3 text-sm font-medium text-black hover:bg-white/90"
+                  >
+                    Shop StormCore Tee
+                  </Link>
+
+                  <Link
+                    href="/size-guide"
+                    className="rounded-md border border-white/25 px-5 py-3 text-sm font-medium text-white hover:bg-white/10"
+                  >
+                    Size Guide
+                  </Link>
+                </div>
+              </div>
+
+              {/* Layered images */}
+              <div className="relative mx-auto w-full max-w-md">
+                <div className="relative aspect-[4/5]">
+                  <div className="absolute inset-0 translate-x-6 -translate-y-4 rotate-3 rounded-2xl border border-white/15 bg-white/5 shadow-2xl" />
+
+                  <div className="absolute inset-0 overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl">
+                    <Image
+                      src="/assets/stormcore/stormcore-1.jpeg"
+                      alt="FitWave StormCore Tee"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 768px) 45vw, 90vw"
+                    />
+                  </div>
+
+                  <div className="absolute bottom-0 right-0 h-[60%] w-[58%] translate-x-3 translate-y-3 overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl">
+                    <Image
+                      src="/assets/stormcore/stormcore-2.jpeg"
+                      alt="FitWave StormCore Tee detail"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 768px) 20vw, 50vw"
+                    />
+                  </div>
+
+                  <div className="absolute left-4 top-4 rounded-full bg-white/50 px-3 py-1 text-xs text-black/80 backdrop-blur-sm shadow">
+                    StormCore • Best Seller
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Our Personal Favourite */}
+      <section className="py-20 bg-white">
+        <Container>
+          <div className="mb-12 text-center">
+            <div className="inline-flex items-center rounded-full border bg-white px-4 py-1 text-xs tracking-wide text-black/70">
+              Our Personal Favourite
+            </div>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
+              Chosen by the FitWave Team
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-gray-600">
+              Pieces we actually train in. Tested across sessions, weather, and recovery days — these are the ones we reach for.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+            {[
+              {
+                src: "/assets/fitwave-apex-seam-tee-model-man.png",
+                name: "Apex Seam Tee (Men)",
+              },
+              {
+                src: "/assets/fitwave-apex-seam-tee-model-woman.png",
+                name: "Apex Seam Tee (Women)",
+              },
+              {
+                src: "/assets/stormcore-tee-white-cream-front.jpg",
+                name: "StormCore Tee (Cream) — Front",
+              },
+              {
+                src: "/assets/stormcore-tee-white-cream-back.jpg",
+                name: "StormCore Tee (Cream) — Back",
+              },
+              {
+                src: "/assets/fitwave-coreflex-quarter-zip-front.jpeg",
+                name: "CoreFlex Quarter-Zip — Front",
+              },
+              {
+                src: "/assets/fitwave-coreflex-quarter-zip-back.jpg",
+                name: "CoreFlex Quarter-Zip — Back",
+              },
+              {
+                src: "/assets/become-the-storm-hoodie-black-and-yellow-front.jpg",
+                name: "Become the Storm Hoodie Black — Front",
+              },
+              {
+                src: "/assets/become-the-storm-hoodie-back.png",
+                name: "Become the Storm Hoodie Black — Back",
+              },
+              {
+                src: "/assets/become-the-storm-white=and-grey-front.jpg",
+                name: "Become the Storm Hoodie White— Front",
+              },
+              {
+                src: "/assets/become-the-storm-hoodie-white-back.jpg",
+                name: "Become the Storm Hoodie White— Back",
+              },
+            ].map(({ src, name }, i) => (
+              <div
+                key={i}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border bg-gray-50"
+              >
+                <Image
+                  src={src}
+                  alt={name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+
+                <div className="pointer-events-none absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/40" />
+
+                {/* Name caption */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-black/55 p-3 backdrop-blur-sm">
+                  <div className="text-sm font-medium text-white">{name}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Editorial note */}
+          <div className="mt-10 text-center">
+            <p className="mx-auto max-w-2xl text-sm text-gray-500">
+              No algorithms here — just what we genuinely love wearing. Updated as the collection evolves.
+            </p>
           </div>
         </Container>
       </section>
@@ -94,6 +383,157 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </Container>
+      </section>
+
+      {/* Winter Collection */}
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <Container>
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-semibold tracking-tight">Winter Collection</h2>
+            <p className="mt-2 text-gray-600">
+              The wave is coming. Limited winter drops designed for cold conditions.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              "/assets/winter/winter-1.png",
+              "/assets/winter/winter-2.png",
+              "/assets/winter/winter-3.png",
+              "/assets/winter/winter-4.jpg",
+            ].map((src, i) => (
+              <div
+                key={src}
+                className="group relative overflow-hidden rounded-xl border bg-white"
+              >
+                <Image
+                  src={src}
+                  alt={`FitWave Winter Jacket ${i + 1}`}
+                  width={600}
+                  height={800}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link
+              href="/collections/winter"
+              className="inline-flex items-center rounded-md bg-black px-6 py-3 text-sm font-medium text-white hover:bg-black/90"
+            >
+              View Winter Collection
+            </Link>
+          </div>
+        </Container>
+      </section>
+
+      {/* Introducing: SurgeRunner */}
+      <section className="py-20 bg-gradient-to-b from-white via-zinc-50 to-slate-100">
+        <Container>
+          <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-zinc-200 via-slate-100 to-zinc-300 p-[1px]">
+            {/* chrome sheen */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.9)_0%,_rgba(255,255,255,0.25)_35%,_rgba(255,255,255,0)_70%)]" />
+
+            <div className="relative rounded-3xl bg-white/60 backdrop-blur-xl">
+              <div className="grid gap-10 p-8 md:grid-cols-2 md:items-center md:p-12">
+                {/* Copy */}
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-4 py-1 text-xs tracking-wide text-black/70 shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-gradient-to-br from-zinc-400 to-zinc-200" />
+                    Introducing
+                  </div>
+
+                  <h2 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
+                    FitWave SurgeAir Runner
+                  </h2>
+
+                  <p className="mt-4 max-w-md text-zinc-700">
+                    A chrome-sleek runner built for speed sessions, city miles, and everyday flex. Lightweight feel, locked-in fit,
+                    and breathable comfort — designed to move like a wave.
+                  </p>
+
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <Link
+                      href="/shop"
+                      className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-900/90"
+                    >
+                      Explore SurgeRunner
+                    </Link>
+                    <Link
+                      href="/collections/new"
+                      className="rounded-md border border-black/10 bg-white/70 px-5 py-3 text-sm font-medium text-zinc-900 hover:bg-white"
+                    >
+                      See what’s new
+                    </Link>
+                  </div>
+
+                  <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border border-black/10 bg-white/70 p-4 shadow-sm">
+                      <div className="text-xs text-black/60">Weight</div>
+                      <div className="mt-1 text-sm font-medium text-zinc-900">Feather-light build</div>
+                    </div>
+                    <div className="rounded-xl border border-black/10 bg-white/70 p-4 shadow-sm">
+                      <div className="text-xs text-black/60">Fit</div>
+                      <div className="mt-1 text-sm font-medium text-zinc-900">Secure, flexible hold</div>
+                    </div>
+                    <div className="rounded-xl border border-black/10 bg-white/70 p-4 shadow-sm">
+                      <div className="text-xs text-black/60">Breathability</div>
+                      <div className="mt-1 text-sm font-medium text-zinc-900">Air-flow mesh zones</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Media: 3 photos */}
+                <div className="relative">
+                  <div className="grid gap-4 md:grid-cols-6">
+
+                    {/* Photo 3 (Back) */}
+                    <div className="relative md:col-span-6">
+                      <div className="group relative aspect-video overflow-hidden rounded-2xl border border-black/10 bg-gradient-to-br from-zinc-100 via-white to-zinc-200 shadow-sm">
+                        <Image
+                          src="/assets/air-runner-back.jpg"
+                          alt="FitWave SurgeRunner Air Runner - back"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-black/0 to-white/40" />
+                      </div>
+                    </div>
+
+                    {/* Photo 1 */}
+                    <div className="relative md:col-span-4">
+                      <div className="group relative aspect-[5/4] md:aspect-[4/3] overflow-hidden rounded-2xl border border-black/10 bg-gradient-to-br from-white via-zinc-50 to-slate-200 shadow-sm">
+                        <Image
+                          src="/assets/fitwave-surgerunner-air-runner.png"
+                          alt="FitWave SurgeRunner Air Runner"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.8)_0%,_rgba(255,255,255,0)_55%)]" />
+                      </div>
+                    </div>
+
+                    {/* Photo 2 */}
+                    <div className="relative md:col-span-2">
+                      <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-gradient-to-br from-white via-zinc-50 to-slate-200 shadow-sm">
+                        <Image
+                          src="/assets/fitwave-pulse-air-model.png"
+                          alt="FitWave Pulse Air model"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.8)_0%,_rgba(255,255,255,0)_55%)]" />
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
         </Container>
       </section>
 
