@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Container from "./Container";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const nav = [{ href: "/size-guide", label: "Size Guide" }];
@@ -129,11 +129,43 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
-  useEffect(() => {
-    // close mobile menu on route change
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  const closeMobileMenu = () => {
     setMobileOpen(false);
     setOpenAccordion(null);
+  };
+
+  useEffect(() => {
+    // close mobile menu on route change
+    closeMobileMenu();
   }, [pathname]);
+
+  // (removed effect that locked scroll and focused close button)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMobileMenu();
+    };
+
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (!mobileOpen) return;
+      const t = e.target as Node;
+      if (!panelRef.current?.contains(t) && !btnRef.current?.contains(t)) {
+        closeMobileMenu();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("touchstart", onPointerDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("touchstart", onPointerDown);
+    };
+  }, [mobileOpen]);
 
   const mobileSections = useMemo(
     () => [
@@ -141,21 +173,21 @@ export default function Header() {
         key: "shop",
         title: "Shop",
         href: shopMenu.href,
-        links: shopMenu.columns.flatMap((c) => c.links),
+        columns: shopMenu.columns,
         promos: shopMenu.promos,
       },
       {
         key: "women",
         title: "Women",
         href: womenMenu.href,
-        links: womenMenu.sections.flatMap((s) => s.links),
+        sections: womenMenu.sections,
         featured: womenMenu.featured,
       },
       {
         key: "men",
         title: "Men",
         href: menMenu.href,
-        links: menMenu.sections.flatMap((s) => s.links),
+        sections: menMenu.sections,
         featured: menMenu.featured,
       },
     ],
@@ -470,6 +502,7 @@ export default function Header() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls="fitwave-mobile-menu"
+              ref={btnRef}
               onClick={() => setMobileOpen((v) => !v)}
             >
               {/* Animated icon */}
@@ -503,222 +536,227 @@ export default function Header() {
             </Link>
           </div>
         </div>
-        {/* Mobile menu */}
+        {/* Mobile menu (animated drop panel) */}
         <div
           id="fitwave-mobile-menu"
-          className={`md:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+          ref={panelRef}
+          className={`md:hidden border-t border-black/10 bg-white/95 backdrop-blur transition-[max-height,opacity] duration-300 ${
+            mobileOpen
+              ? "max-h-[85vh] opacity-100 overflow-y-auto"
+              : "max-h-0 opacity-0 overflow-hidden"
+          }`}
         >
-          {/* Backdrop */}
-          <div
-            className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
-              mobileOpen ? "opacity-100" : "opacity-0"
-            }`}
-            onClick={() => setMobileOpen(false)}
-          />
-
-          {/* Drawer */}
-          <div
-            className={`fixed right-0 top-0 z-50 h-full w-[86vw] max-w-sm overflow-hidden border-l bg-white shadow-2xl transition-transform duration-300 ${
-              mobileOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-          >
-            {/* Chrome inspired header */}
-            <div className="relative border-b bg-gradient-to-br from-zinc-100 via-white to-zinc-200 p-4">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.9)_0%,_rgba(255,255,255,0.15)_55%,_rgba(255,255,255,0)_75%)]" />
-              <div className="relative flex items-center justify-between">
-                <div className="text-sm font-medium text-black/80">Menu</div>
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-white/70 hover:bg-white"
-                  aria-label="Close menu"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  ✕
-                </button>
-              </div>
+          <div className="px-4 py-4">
+            {/* Quick actions */}
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/shop"
+                onClick={closeMobileMenu}
+                className="rounded-2xl border border-black/10 bg-white px-4 py-4 text-sm font-medium text-black shadow-sm hover:bg-gray-50"
+              >
+                Shop all
+              </Link>
+              <Link
+                href="/collections/new"
+                onClick={closeMobileMenu}
+                className="rounded-2xl border border-black/10 bg-white px-4 py-4 text-sm font-medium text-black shadow-sm hover:bg-gray-50"
+              >
+                New in
+              </Link>
             </div>
 
-            <div className="h-full overflow-y-auto p-4">
-              {/* Quick links */}
-              <div className="grid grid-cols-2 gap-3">
-                <Link
-                  href="/shop"
-                  className="rounded-xl border bg-white p-4 text-sm font-medium text-black shadow-sm hover:bg-gray-50"
-                >
-                  Shop all
-                </Link>
-                <Link
-                  href="/collections/new"
-                  className="rounded-xl border bg-white p-4 text-sm font-medium text-black shadow-sm hover:bg-gray-50"
-                >
-                  New in
-                </Link>
-              </div>
-
-              {/* Accordions */}
-              <div className="mt-6 space-y-3">
-                {mobileSections.map((section) => {
-                  const isOpen = openAccordion === section.key;
-                  return (
-                    <div key={section.key} className="overflow-hidden rounded-2xl border">
-                      <button
-                        type="button"
-                        onClick={() => toggleAccordion(section.key)}
-                        className="flex w-full items-center justify-between bg-white px-4 py-4 text-left"
-                        aria-expanded={isOpen}
-                      >
-                        <span className="text-sm font-medium text-black">{section.title}</span>
-                        <span
-                          className={`text-black/70 transition-transform duration-300 ${
-                            isOpen ? "rotate-180" : "rotate-0"
-                          }`}
-                        >
-                          ▾
-                        </span>
-                      </button>
-
-                      <div
-                        className={`grid transition-all duration-300 ${
-                          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            {/* Accordions */}
+            <div className="mt-5 space-y-3">
+              {mobileSections.map((section) => {
+                const isOpen = openAccordion === section.key;
+                return (
+                  <div key={section.key} className="overflow-hidden rounded-2xl border border-black/10 bg-white">
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion(section.key)}
+                      className="flex w-full items-center justify-between px-4 py-4 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-sm font-semibold text-black">{section.title}</span>
+                      <span
+                        className={`text-black/60 transition-transform duration-300 ${
+                          isOpen ? "rotate-180" : "rotate-0"
                         }`}
                       >
-                        <div className="overflow-hidden">
-                          <div className="border-t bg-gray-50 px-4 py-3">
-                            <Link
-                              href={section.href}
-                              className="text-sm font-medium text-black hover:underline"
-                            >
-                              View all {section.title} →
-                            </Link>
-                          </div>
-                          <div className="bg-white px-4 py-3">
-                            <ul className="grid grid-cols-2 gap-x-4 gap-y-3">
-                              {section.links.map((l) => (
-                                <li key={l.href}>
-                                  <Link
-                                    href={l.href}
-                                    className="text-sm text-black/70 hover:text-black"
-                                  >
-                                    {l.label}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
+                        ▾
+                      </span>
+                    </button>
 
-                            {/* Shop promos (mobile) */}
-                            {section.key === "shop" && section.promos?.length ? (
-                              <div className="mt-5 grid gap-3">
+                    <div
+                      className={`overflow-hidden border-t border-black/10 bg-white transition-all duration-300 ${
+                        isOpen ? "max-h-[1200px]" : "max-h-0"
+                      }`}
+                    >
+                      <div className="bg-gray-50 px-4 py-3">
+                        <Link
+                          href={section.href}
+                          onClick={closeMobileMenu}
+                          className="text-sm font-medium text-black hover:underline"
+                        >
+                          View all {section.title} →
+                        </Link>
+                      </div>
+
+                      <div className="px-4 py-4">
+                        {/* Shop: render columns; Women/Men: render sections */}
+                        {section.key === "shop" && section.columns ? (
+                          <div className="space-y-6">
+                            {section.columns.map((col: any) => (
+                              <div key={col.title}>
                                 <div className="text-xs font-medium uppercase tracking-wider text-black/50">
-                                  Featured
+                                  {col.title}
                                 </div>
-                                {section.promos.map((p: any) => (
-                                  <Link
-                                    key={p.href}
-                                    href={p.href}
-                                    className="group overflow-hidden rounded-2xl border bg-white shadow-sm hover:bg-gray-50"
-                                  >
-                                    <div className="grid grid-cols-[1fr_88px] gap-3 p-4">
-                                      <div>
-                                        <div className="text-xs font-medium uppercase tracking-wider text-black/60">
-                                          {p.eyebrow}
-                                        </div>
-                                        <div className="mt-1 text-sm font-semibold text-black">
-                                          {p.title}
-                                        </div>
-                                        <div className="mt-1 text-xs text-black/60">
-                                          {p.subtitle}
-                                        </div>
-                                        <div className="mt-2 text-sm font-medium text-black">
-                                          Shop now →
-                                        </div>
-                                      </div>
-                                      <div className="overflow-hidden rounded-xl border bg-white">
-                                        <div className="relative aspect-[4/5]">
-                                          <Image
-                                            src={p.imageSrc}
-                                            alt={p.title}
-                                            fill
-                                            className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
-                                            sizes="88px"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </Link>
-                                ))}
+                                <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                                  {col.links.map((l: any) => (
+                                    <li key={l.href}>
+                                      <Link
+                                        href={l.href}
+                                        onClick={closeMobileMenu}
+                                        className="text-sm text-black/70 hover:text-black"
+                                      >
+                                        {l.label}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
                               </div>
-                            ) : null}
-
-                            {/* Women/Men featured (mobile) */}
-                            {(section.key === "women" || section.key === "men") && section.featured ? (
-                              <div className="mt-5 overflow-hidden rounded-2xl border bg-black text-white">
-                                <div className="p-4">
-                                  <div className="text-xs font-medium uppercase tracking-wider text-white/70">
-                                    {section.featured.eyebrow}
-                                  </div>
-                                  <div className="mt-1 text-base font-semibold tracking-tight">
-                                    {section.featured.title}
-                                  </div>
-                                  <div className="mt-1 text-sm text-white/80">
-                                    {section.featured.subtitle}
-                                  </div>
-                                  <Link
-                                    href={section.featured.href}
-                                    className="mt-3 inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
-                                  >
-                                    Shop now
-                                  </Link>
-                                </div>
-                                <div className="relative aspect-[16/10] overflow-hidden border-t">
-                                  <Image
-                                    src={section.featured.imageSrc}
-                                    alt={`${section.title} featured drop`}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(min-width: 640px) 360px, 86vw"
-                                  />
-                                </div>
-                              </div>
-                            ) : null}
+                            ))}
                           </div>
-                        </div>
+                        ) : (
+                          <div className="space-y-6">
+                            {section.sections?.map((sec: any) => (
+                              <div key={sec.title}>
+                                <div className="text-xs font-medium uppercase tracking-wider text-black/50">
+                                  {sec.title}
+                                </div>
+                                <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                                  {sec.links.map((l: any) => (
+                                    <li key={l.href}>
+                                      <Link
+                                        href={l.href}
+                                        onClick={closeMobileMenu}
+                                        className="text-sm text-black/70 hover:text-black"
+                                      >
+                                        {l.label}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Shop promos */}
+                        {section.key === "shop" && section.promos?.length ? (
+                          <div className="mt-6 grid gap-3">
+                            <div className="text-xs font-medium uppercase tracking-wider text-black/50">
+                              Featured
+                            </div>
+                            {section.promos.map((p: any) => (
+                              <Link
+                                key={p.href}
+                                href={p.href}
+                                onClick={closeMobileMenu}
+                                className="group overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm hover:bg-gray-50"
+                              >
+                                <div className="grid grid-cols-[1fr_92px] gap-3 p-4">
+                                  <div>
+                                    <div className="text-xs font-medium uppercase tracking-wider text-black/60">
+                                      {p.eyebrow}
+                                    </div>
+                                    <div className="mt-1 text-sm font-semibold text-black">{p.title}</div>
+                                    <div className="mt-1 text-xs text-black/60">{p.subtitle}</div>
+                                    <div className="mt-2 text-sm font-medium text-black">Shop now →</div>
+                                  </div>
+                                  <div className="overflow-hidden rounded-xl border border-black/10 bg-white">
+                                    <div className="relative aspect-[4/5]">
+                                      <Image
+                                        src={p.imageSrc}
+                                        alt={p.title}
+                                        fill
+                                        className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                                        sizes="92px"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {/* Women/Men featured */}
+                        {(section.key === "women" || section.key === "men") && section.featured ? (
+                          <div className="mt-6 overflow-hidden rounded-2xl border border-black/10 bg-black text-white">
+                            <div className="p-4">
+                              <div className="text-xs font-medium uppercase tracking-wider text-white/70">
+                                {section.featured.eyebrow}
+                              </div>
+                              <div className="mt-1 text-base font-semibold tracking-tight">{section.featured.title}</div>
+                              <div className="mt-1 text-sm text-white/80">{section.featured.subtitle}</div>
+                              <Link
+                                href={section.featured.href}
+                                onClick={closeMobileMenu}
+                                className="mt-3 inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
+                              >
+                                Shop now
+                              </Link>
+                            </div>
+                            <div className="relative aspect-[16/10] overflow-hidden border-t border-white/10">
+                              <Image
+                                src={section.featured.imageSrc}
+                                alt={`${section.title} featured drop`}
+                                fill
+                                className="object-cover"
+                                sizes="(min-width: 640px) 360px, 88vw"
+                              />
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })}
 
-                {/* Simple links */}
-                {nav.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="block rounded-2xl border bg-white px-4 py-4 text-sm font-medium text-black shadow-sm hover:bg-gray-50"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+              {/* Simple links */}
+              {nav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMobileMenu}
+                  className="block rounded-2xl border border-black/10 bg-white px-4 py-4 text-sm font-semibold text-black shadow-sm hover:bg-gray-50"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Bottom actions */}
+            <div className="mt-6 rounded-2xl border border-black/10 bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-4 text-white">
+              <div className="text-xs uppercase tracking-wider text-white/70">Quick actions</div>
+              <div className="mt-4 flex gap-3">
+                <Link
+                  href="/search"
+                  onClick={closeMobileMenu}
+                  className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
+                >
+                  Search
+                </Link>
+                <Link
+                  href="/cart"
+                  onClick={closeMobileMenu}
+                  className="rounded-full border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+                >
+                  Cart
+                </Link>
               </div>
-
-              <div className="mt-8 rounded-2xl border bg-black p-4 text-white">
-                <div className="text-xs uppercase tracking-wider text-white/70">FitWave</div>
-                <div className="mt-2 text-sm text-white/80">Ride the Wave. Become the Storm. 🌊⚡</div>
-                <div className="mt-4 flex gap-3">
-                  <Link
-                    href="/search"
-                    className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
-                  >
-                    Search
-                  </Link>
-                  <Link
-                    href="/cart"
-                    className="rounded-full border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-                  >
-                    Cart
-                  </Link>
-                </div>
-              </div>
-
-              <div className="h-24" />
             </div>
           </div>
         </div>
