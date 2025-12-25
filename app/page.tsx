@@ -320,19 +320,27 @@ export default function HomePage() {
               },
               {
                 src: "/assets/become-the-storm-hoodie-black-and-yellow-front.jpg",
-                name: "Become the Storm Hoodie Black — Front",
+                name: "Become the Storm Hoodie (Black) — Front",
               },
               {
                 src: "/assets/become-the-storm-hoodie-back.png",
-                name: "Become the Storm Hoodie Black — Back",
+                name: "Become the Storm Hoodie (Black) — Back",
               },
               {
                 src: "/assets/become-the-storm-white=and-grey-front.jpg",
-                name: "Become the Storm Hoodie White— Front",
+                name: "Become the Storm Hoodie (White)— Front",
               },
               {
                 src: "/assets/become-the-storm-hoodie-white-and-grey-dark-back.jpg",
-                name: "Become the Storm Hoodie White— Back",
+                name: "Become the Storm Hoodie (White)— Back",
+              },
+              {
+                src: "/assets/fitwave-emblem-t-shirt-front.jpg",
+                name: "Emblem T-shirt — Front",
+              },
+              {
+                src: "/assets/fitwave-emblem-t-shirt-back.jpg",
+                name: "Emblem T-shirt — Back",
               },
             ].map(({ src, name }, i) => (
               <div
