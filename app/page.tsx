@@ -331,7 +331,7 @@ export default function HomePage() {
                 name: "Become the Storm Hoodie White— Front",
               },
               {
-                src: "/assets/become-the-storm-hoodie-white-back.jpg",
+                src: "/assetsbecome-the-storm-hoodie-white-and-grey-back.jpg",
                 name: "Become the Storm Hoodie White— Back",
               },
             ].map(({ src, name }, i) => (
