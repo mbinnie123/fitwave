@@ -146,7 +146,7 @@ export default function HomePage() {
                   fontStyle: "normal",
                 }}
               >
-                FitWave
+                FitWave Fitness Clothing
               </h1>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-black/90 md:text-4xl">
                 Ride the Wave, Become the Storm. 🌊⚡
