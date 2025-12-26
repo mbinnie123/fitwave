@@ -122,10 +122,170 @@ const features = [
 ];
 
 const collections = [
-  { title: "New In", href: "/collections/new" },
-  { title: "Best Sellers", href: "/collections/bestsellers" },
-  { title: "Matching Sets", href: "/collections/sets" },
+  { title: "Hoodies", href: "/collections/hoodies", image: "/assets/fitwave-hoodie-puff-print.jpg" },
+  { title: "T-Shirts", href: "/collections/t-shirts", image: "/assets/fitwave-graphic-t-shirt.jpeg" },
+  { title: "Tops", href: "/collections/tops", image: "/assets/fitwave-coreflex-quarter-zip-front.jpeg" },
+  { title: "Shorts", href: "/collections/shorts", image: "/assets/fitwave-shorts.jpeg", imagePosition: "50% 85%" },
+  { title: "Tracksuits", href: "/collections/tracksuits", image: "/assets/fitwave-tracksuit-front.jpg", imagePosition: "50% 15%" },
+  { title: "Joggers", href: "/collections/joggers", image:"/assets/fitwave-joggers.png", imagePosition: "50% 15%" },
+  { title: "Jackets", href: "/collections/jackets", image:"/assets/fitwave-jacket-clean-studio.jpeg" },
+  { title: "Footwear", href: "/collections/footwear", image: "/assets/fitwave-surgerunner-air-runner.png" },
 ];
+
+function CollectionsCarousel() {
+  const trackRef = useState<HTMLDivElement | null>(null)[0];
+  // NOTE: we’ll set the ref via callback to avoid extra imports.
+  const [track, setTrack] = useState<HTMLDivElement | null>(null);
+  const [active, setActive] = useState(0);
+
+  const scrollToIndex = (idx: number) => {
+    if (!track) return;
+    const children = Array.from(track.children) as HTMLElement[];
+    const clamped = Math.max(0, Math.min(idx, children.length - 1));
+    const el = children[clamped];
+    if (!el) return;
+    track.scrollTo({ left: el.offsetLeft - 16, behavior: "smooth" });
+    setActive(clamped);
+  };
+
+  const onScroll = () => {
+    if (!track) return;
+    const children = Array.from(track.children) as HTMLElement[];
+    if (!children.length) return;
+
+    const center = track.scrollLeft + track.clientWidth / 2;
+    let best = 0;
+    let bestDist = Number.POSITIVE_INFINITY;
+
+    children.forEach((el, i) => {
+      const elCenter = el.offsetLeft + el.clientWidth / 2;
+      const dist = Math.abs(elCenter - center);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    });
+
+    setActive(best);
+  };
+
+  return (
+    <div className="relative">
+      {/* ambient, inspired glow */}
+      <div className="pointer-events-none absolute -left-16 -top-10 h-40 w-40 rounded-full bg-black/5 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 -bottom-10 h-40 w-40 rounded-full bg-black/5 blur-3xl" />
+
+      {/* Controls (above carousel) */}
+<div className="mt-4 flex items-center justify-between gap-3">
+  <div className="text-xs text-gray-500">
+    {active + 1}/{collections.length}
+  </div>
+
+  <div className="flex items-center gap-2">
+    <button
+      type="button"
+      aria-label="Previous collection"
+      onClick={() => scrollToIndex(active - 1)}
+      className="rounded-full border bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
+    >
+      ‹
+    </button>
+    <button
+      type="button"
+      aria-label="Next collection"
+      onClick={() => scrollToIndex(active + 1)}
+      className="rounded-full border bg-white/90 px-3 py-2 text-sm shadow hover:bg-white"
+    >
+      ›
+    </button>
+  </div>
+</div>
+
+      {/* Track */}
+      <div
+        ref={(el) => {
+          if (el) setTrack(el);
+        }}
+        onScroll={onScroll}
+        className="mt-6 flex gap-4 overflow-x-auto scroll-smooth px-1 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{ scrollSnapType: "x mandatory" }}
+      >
+        {collections.map((c, i) => (
+          <Link
+            key={c.title}
+            href={c.href}
+            className="group relative min-w-[78%] snap-center overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md sm:min-w-[48%] md:min-w-[32%]"
+            style={{ scrollSnapAlign: "center" }}
+          >
+            {/* subtle motion feel */}
+            <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <div className="absolute -right-12 -top-10 h-48 w-48 rounded-full bg-black/5 blur-3xl" />
+              <div className="absolute -left-10 -bottom-12 h-48 w-48 rounded-full bg-black/5 blur-3xl" />
+            </div>
+
+            <div className="relative">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-lg font-semibold tracking-tight">{c.title}</div>
+                  <div className="mt-2 text-sm text-gray-600">Swipe to explore →</div>
+                </div>
+
+                {/* index chip */}
+                <div className="rounded-full border bg-white/70 px-3 py-1 text-xs text-black/70 backdrop-blur">
+                  {i + 1}/{collections.length}
+                </div>
+              </div>
+
+             {/* featured image or fallback */}
+<div className="mt-6 relative h-40 overflow-hidden rounded-xl border bg-gradient-to-b from-gray-100 to-white">
+  {c.image ? (
+    <img
+      src={c.image}
+      alt={`${c.title} featured image`}
+      className="h-full w-full object-cover"
+      style={{ objectPosition: (c as any).imagePosition || "50% 50%" }}
+    />
+  ) : (
+    <>
+      <div className="absolute -left-8 top-8 h-24 w-24 rounded-full bg-black/5 blur-2xl" />
+      <div className="absolute left-10 top-10 h-32 w-32 rounded-full bg-black/5 blur-3xl" />
+      <div className="absolute right-6 top-6 h-28 w-28 rounded-full bg-black/5 blur-2xl" />
+      <div className="absolute inset-0 flex items-center justify-center text-xs tracking-wide text-black/40">
+        FITWAVE • PERFORMANCE
+      </div>
+    </>
+  )}
+</div>
+
+              <div className="mt-5 inline-flex items-center gap-2 text-sm font-medium">
+                Shop now
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Dots */}
+      <div className="mt-3 flex items-center justify-center gap-2">
+        {collections.map((c, i) => (
+          <button
+            key={c.title}
+            type="button"
+            aria-label={`Go to ${c.title}`}
+            onClick={() => scrollToIndex(i)}
+            className={`h-2.5 w-2.5 rounded-full border transition ${i === active ? "bg-black" : "bg-white hover:bg-gray-100"}`}
+          />
+        ))}
+      </div>
+
+      {/* Hint */}
+      <div className="mt-4 text-center text-xs text-gray-500">
+        Tip: swipe on mobile, scroll on desktop.
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -379,28 +539,14 @@ export default function HomePage() {
           <div className="flex items-end justify-between gap-6">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight">Shop by collection</h2>
-              <p className="mt-2 text-gray-600">Quick paths to your best sellers and new drops.</p>
+              <p className="mt-2 text-gray-600">Swipe through categories — designed to feel like a wave of ideas.</p>
             </div>
             <Link href="/shop" className="text-sm hover:underline">
               View all
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {collections.map((c) => (
-              <Link
-                key={c.title}
-                href={c.href}
-                className="group rounded-xl border p-6 hover:bg-gray-50"
-              >
-                <div className="text-lg font-medium">{c.title}</div>
-                <div className="mt-2 text-sm text-gray-600">
-                  Tap to explore →
-                </div>
-                <div className="mt-6 h-28 rounded-lg bg-gradient-to-b from-gray-100 to-white" />
-              </Link>
-            ))}
-          </div>
+          <CollectionsCarousel />
         </Container>
       </section>
 
