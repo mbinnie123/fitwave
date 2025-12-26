@@ -289,7 +289,7 @@ function CollectionsCarousel() {
 
 export default function HomePage() {
   return (
-    <>
+    <div className="overflow-x-hidden">
       {/* Hero */}
       <section className="border-b">
         <Container>
@@ -720,6 +720,6 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
-    </>
+    </div>
   );
 }
