@@ -126,7 +126,7 @@ const collections = [
   { title: "T-Shirts", href: "/collections/t-shirts", image: "/assets/fitwave-graphic-t-shirt.jpeg" },
   { title: "Tops", href: "/collections/tops", image: "/assets/fitwave-coreflex-quarter-zip-front.jpeg" },
   { title: "Shorts", href: "/collections/shorts", image: "/assets/fitwave-shorts.jpeg", imagePosition: "50% 85%" },
-  { title: "Tracksuits", href: "/collections/tracksuits", image: "/assets/fitwave-tracksuit-front.jpg", imagePosition: "50% 15%" },
+  { title: "Tracksuits/Cargos", href: "/collections/tracksuits-cargos", image: "/assets/cargos-cream.jpg", imagePosition: "50% 15%" },
   { title: "Joggers", href: "/collections/joggers", image:"/assets/fitwave-joggers.png", imagePosition: "50% 15%" },
   { title: "Jackets", href: "/collections/jackets", image:"/assets/fitwave-jacket-clean-studio.jpeg" },
   { title: "Footwear", href: "/collections/footwear", image: "/assets/fitwave-surgerunner-air-runner.png" },
@@ -501,6 +501,14 @@ export default function HomePage() {
               {
                 src: "/assets/fitwave-emblem-t-shirt-back.jpg",
                 name: "Emblem T-shirt — Back",
+              },
+              {
+                src: "/assets/cargos-black-and-cream.jpeg",
+                name: "Cream and Black Cargos — Front",
+              },
+              {
+                src: "/assets/fitwave-hoodie-puff-print.jpg",
+                name: "Puff Print StormCore Hoodie — Back",
               },
             ].map(({ src, name }, i) => (
               <div
